@@ -1,17 +1,21 @@
-//
-//  Myoelectric_ProstheticApp.swift
-//  Myoelectric Prosthetic
-//
-//  Created by Daniel Richardson on 3/24/25.
-//
-
 import SwiftUI
+import MQTTNIO
 
 @main
-struct Myoelectric_ProstheticApp: App {
+struct MyoelectricProstheticApp: App {
+    // Initialize app components
+    init() {
+        _ = SimpleMQTTClient.shared
+        setupAppearance()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+    }
+    
+    private func setupAppearance() {
+        UINavigationBar.appearance().tintColor = .systemBlue
     }
 }
