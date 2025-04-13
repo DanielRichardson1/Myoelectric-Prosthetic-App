@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "arm.jpg",
+      "filename" : "icon.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "arm 1.jpg",
+      "filename" : "icon 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "arm 2.jpg",
+      "filename" : "icon 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
