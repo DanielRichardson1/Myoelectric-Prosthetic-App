@@ -102,44 +102,44 @@ struct SensorDataPoint {
 }
 
 // SensorDataManager.swift
-import Foundation
-
 class SensorDataManager {
     static let shared = SensorDataManager()
     
     // Maximum number of data points to keep for the graphs
     private let maxDataPoints = 100
     
-    // Data arrays for the two graphs
-    private(set) var graph1Data: [SensorDataPoint] = []
-    private(set) var graph2Data: [SensorDataPoint] = []
+    // Data arrays for the two voltage channels
+    private(set) var voltage0Data: [SensorDataPoint] = []
+    private(set) var voltage1Data: [SensorDataPoint] = []
     
     // Notification name for when data is updated
     static let dataUpdatedNotification = Notification.Name("sensorDataUpdated")
     
-    // Add a new data point to both graphs
-    func addDataPoint(value: Double) {
-        let newPoint = SensorDataPoint(timestamp: Date(), value: value)
+    // Add data points for both voltage channels
+    func addDataPoints(voltage0: Double, voltage1: Double) {
+        let timestamp = Date()
+        let point0 = SensorDataPoint(timestamp: timestamp, value: voltage0)
+        let point1 = SensorDataPoint(timestamp: timestamp, value: voltage1)
         
-        // Update graph 1
-        if graph1Data.count >= maxDataPoints {
-            graph1Data.removeFirst()
+        // Update voltage0 data
+        if voltage0Data.count >= maxDataPoints {
+            voltage0Data.removeFirst()
         }
-        graph1Data.append(newPoint)
+        voltage0Data.append(point0)
         
-        // Update graph 2
-        if graph2Data.count >= maxDataPoints {
-            graph2Data.removeFirst()
+        // Update voltage1 data
+        if voltage1Data.count >= maxDataPoints {
+            voltage1Data.removeFirst()
         }
-        graph2Data.append(newPoint)
+        voltage1Data.append(point1)
         
         // Notify observers that data has been updated
         NotificationCenter.default.post(name: SensorDataManager.dataUpdatedNotification, object: nil)
     }
     
     func clearData() {
-        graph1Data.removeAll()
-        graph2Data.removeAll()
+        voltage0Data.removeAll()
+        voltage1Data.removeAll()
         NotificationCenter.default.post(name: SensorDataManager.dataUpdatedNotification, object: nil)
     }
 }

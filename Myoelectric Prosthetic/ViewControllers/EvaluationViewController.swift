@@ -107,11 +107,11 @@ class EvaluationViewController: UIViewController {
     
     private func updateStatusLabel() {
         if SimpleMQTTClient.shared.connected {
-            statusLabel.text = "MQTT Status: Connected"
+            statusLabel.text = "Status: Connected"
             statusLabel.textColor = .systemGreen
             evaluateButton.isEnabled = true
         } else {
-            statusLabel.text = "MQTT Status: Not Connected"
+            statusLabel.text = "Status: Not Connected"
             statusLabel.textColor = .systemRed
             evaluateButton.isEnabled = false
         }

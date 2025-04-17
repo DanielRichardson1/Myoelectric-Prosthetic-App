@@ -18,7 +18,7 @@ struct ConnectionSettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("MQTT Connection Settings")) {
+                Section(header: Text("Connection Settings")) {
                     TextField("Host", text: $host)
                     TextField("Port", text: $port)
                         .keyboardType(.numberPad)

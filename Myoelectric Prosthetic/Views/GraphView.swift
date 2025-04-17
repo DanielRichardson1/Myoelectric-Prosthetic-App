@@ -5,13 +5,17 @@ import DGCharts
 class GraphView: UIView {
     // MARK: - Properties
     private let chartView = LineChartView()
+    private let titleLabel = UILabel()
     private var dataEntries: [ChartDataEntry] = []
     private let displayCount = 100 // Maximum number of points to display
     
     // Chart styling
-    private let lineColor = UIColor.systemRed
-    private let fillColor = UIColor.systemRed.withAlphaComponent(0.1)
-    private let circleColor = UIColor.systemRed
+    private var lineColor = UIColor.systemRed
+    private var fillColor = UIColor.systemRed.withAlphaComponent(0.1)
+    private var circleColor = UIColor.systemRed
+    
+    // Set to true for voltage1, false for voltage0
+    private var isSecondaryGraph = false
     
     // MARK: - Initialization
     override init(frame: CGRect) {
@@ -26,11 +30,23 @@ class GraphView: UIView {
     
     // MARK: - Setup
     private func setupChart() {
+        // Setup title label
+        titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        titleLabel.textAlignment = .center
+        titleLabel.textColor = .label
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(titleLabel)
+        
         // Add chart view to hierarchy
-        addSubview(chartView)
         chartView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(chartView)
+        
         NSLayoutConstraint.activate([
-            chartView.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            
+            chartView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             chartView.leadingAnchor.constraint(equalTo: leadingAnchor),
             chartView.trailingAnchor.constraint(equalTo: trailingAnchor),
             chartView.bottomAnchor.constraint(equalTo: bottomAnchor)
@@ -73,7 +89,33 @@ class GraphView: UIView {
         chartView.chartDescription.enabled = false
     }
     
-    // MARK: - Data Management
+    // Set the title for this graph and configure appearance
+    func setTitle(_ title: String, isSecondaryGraph: Bool = false) {
+        titleLabel.text = title
+        self.isSecondaryGraph = isSecondaryGraph
+        
+        // Set different colors based on which graph this is
+        if isSecondaryGraph {
+            lineColor = UIColor.systemBlue
+            fillColor = UIColor.systemBlue.withAlphaComponent(0.1)
+            circleColor = UIColor.systemBlue
+        } else {
+            lineColor = UIColor.systemRed
+            fillColor = UIColor.systemRed.withAlphaComponent(0.1)
+            circleColor = UIColor.systemRed
+        }
+        
+        // Update chart data with new colors if data already exists
+        if let chartData = chartView.data,
+           let dataSet = chartData.dataSets.first as? LineChartDataSet {
+            dataSet.colors = [lineColor]
+            dataSet.setCircleColor(circleColor)
+            dataSet.fillColor = fillColor
+            chartData.notifyDataChanged()
+            chartView.notifyDataSetChanged()
+        }
+    }
+    
     // MARK: - Data Management
     func updateChartData() {
         let chartDataSet = LineChartDataSet(entries: dataEntries, label: "Sensor Data")

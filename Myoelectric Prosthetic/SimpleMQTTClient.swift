@@ -199,17 +199,45 @@ class SimpleMQTTClient {
     
     // Handle received sensor data
     private func handleSensorData(_ message: String) {
-        guard let value = Double(message) else { return }
+        // Parse the message which now contains two voltage values separated by comma
+        // Format: "v0,v1" e.g., "-0.19,1.12"
+        let components = message.split(separator: ",")
         
-        // Add the value to sensor data manager
-        SensorDataManager.shared.addDataPoint(value: value)
-        
-        // Post notification
-        NotificationCenter.default.post(
-            name: SimpleMQTTClient.sensorDataReceivedNotification,
-            object: nil,
-            userInfo: ["value": value]
-        )
+        // Check for valid format and provide fallback handling for backwards compatibility
+        if components.count == 2,
+        let voltage0 = Double(components[0]),
+        let voltage1 = Double(components[1]) {
+            
+            // New format: Two voltage values
+            // Add both values to sensor data manager
+            SensorDataManager.shared.addDataPoints(voltage0: voltage0, voltage1: voltage1)
+            
+            // Post notification with both voltage values
+            NotificationCenter.default.post(
+                name: SimpleMQTTClient.sensorDataReceivedNotification,
+                object: nil,
+                userInfo: ["voltage0": voltage0, "voltage1": voltage1]
+            )
+            
+        } else if let singleValue = Double(message.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            // Legacy format: Single value - use the same value for both channels for backward compatibility
+            
+            print("Received legacy single-value format: \(singleValue). Using same value for both channels.")
+            
+            // Add the same value to both channels
+            SensorDataManager.shared.addDataPoints(voltage0: singleValue, voltage1: singleValue)
+            
+            // Post notification with the same value for both voltages
+            NotificationCenter.default.post(
+                name: SimpleMQTTClient.sensorDataReceivedNotification,
+                object: nil,
+                userInfo: ["voltage0": singleValue, "voltage1": singleValue]
+            )
+            
+        } else {
+            // Invalid format
+            print("Error parsing sensor data: \(message). Expected format: 'v0,v1' (e.g., '-0.19,1.12')")
+        }
     }
     
     // Handle received classification data

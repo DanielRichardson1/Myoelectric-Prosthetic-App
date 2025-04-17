@@ -1,6 +1,6 @@
 // GraphViewController.swift
 import UIKit
-import Charts
+import DGCharts
 
 class GraphViewController: UIViewController {
     // MARK: - Properties
@@ -45,7 +45,7 @@ class GraphViewController: UIViewController {
         connectionStatusLabel.layer.masksToBounds = true
         connectionStatusLabel.backgroundColor = .systemGray5
         connectionStatusLabel.textColor = .label
-        connectionStatusLabel.text = "MQTT: Disconnected"
+        connectionStatusLabel.text = "Status: Disconnected"
         view.addSubview(connectionStatusLabel)
         
         // Configure stack view
@@ -74,6 +74,23 @@ class GraphViewController: UIViewController {
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
         
+        // Set titles for each graph to indicate what they're displaying
+        graph1.setTitle("Voltage Channel 1", isSecondaryGraph: false)
+        graph2.setTitle("Voltage Channel 2", isSecondaryGraph: true)
+        
+        // Initialize graphs with any existing data from SensorDataManager
+        let dataManager = SensorDataManager.shared
+        
+        // Initialize graph1 with voltage0 data
+        for dataPoint in dataManager.voltage0Data {
+            graph1.addDataPoint(dataPoint.value)
+        }
+        
+        // Initialize graph2 with voltage1 data
+        for dataPoint in dataManager.voltage1Data {
+            graph2.addDataPoint(dataPoint.value)
+        }
+        
         // Update connection status
         updateConnectionStatus()
     }
@@ -100,12 +117,13 @@ class GraphViewController: UIViewController {
     // MARK: - Event Handlers
     @objc private func handleSensorDataReceived(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let value = userInfo["value"] as? Double else { return }
+              let voltage0 = userInfo["voltage0"] as? Double,
+              let voltage1 = userInfo["voltage1"] as? Double else { return }
         
-        // Update both graphs with new data
+        // Update graphs with their respective voltage values
         DispatchQueue.main.async {
-            self.graph1.addDataPoint(value)
-            self.graph2.addDataPoint(value)
+            self.graph1.addDataPoint(voltage0)
+            self.graph2.addDataPoint(voltage1)
         }
     }
     
@@ -119,11 +137,11 @@ class GraphViewController: UIViewController {
         let isConnected = SimpleMQTTClient.shared.connected
         
         if isConnected {
-            connectionStatusLabel.text = "MQTT: Connected"
+            connectionStatusLabel.text = "Status: Connected"
             connectionStatusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.3)
             connectionStatusLabel.textColor = .systemGreen
         } else {
-            connectionStatusLabel.text = "MQTT: Disconnected"
+            connectionStatusLabel.text = "Status: Disconnected"
             connectionStatusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.3)
             connectionStatusLabel.textColor = .systemRed
         }
